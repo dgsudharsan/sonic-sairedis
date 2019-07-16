@@ -39,8 +39,66 @@ sai_status_t vs_create_port(
     return SAI_STATUS_SUCCESS;
 }
 
+sai_status_t vs_set_port_attribute(
+            _In_ sai_object_id_t port_id,
+            _In_ const sai_attribute_t *attr)
+{
+    MUTEX();
+    SWSS_LOG_ENTER();
+
+    // For samplepacket attr, 'tc sample' command is invoked
+    if (attr->id == SAI_PORT_ATTR_INGRESS_SAMPLEPACKET_ENABLE){
+        // Get the samplepacket object id
+        sai_object_id_t samplepacket_oid = attr->value.oid;
+
+        // Get the if_name from the port_id
+        std::string if_name;
+        if(false == g_switch_state_map.at(g_vs_switch_id)->getPortIDToIfName(port_id, if_name))
+              SWSS_LOG_ERROR("Unable to get if_name mapped to the port_id, sampling session is not updated");
+
+        if(samplepacket_oid == SAI_NULL_OBJECT_ID)
+        {
+              //Delete the sampling session
+              std::string cmd = "tc qdisc delete dev " + if_name + " handle ffff: ingress";
+              if(system(cmd.c_str()) == -1)
+                  SWSS_LOG_ERROR("Unable to delete the sampling session");;
+        } else {
+              // Get the sample rate
+              sai_attribute_t samplepacket_attr;
+              samplepacket_attr.id = SAI_SAMPLEPACKET_ATTR_SAMPLE_RATE;
+              if(SAI_STATUS_SUCCESS == \
+                 vs_generic_get(SAI_OBJECT_TYPE_SAMPLEPACKET, samplepacket_oid, 1, &samplepacket_attr))
+              {
+                  int rate = samplepacket_attr.value.u32;
+
+                  // Default sample group ID
+                  std::string group("1");
+
+                  //Delete the sampling session
+                  std::string cmd = "tc qdisc delete dev " + if_name + " handle ffff: ingress";
+                  if(system(cmd.c_str()) == -1)
+                      SWSS_LOG_ERROR("Unable to delete/update the sampling session");;
+
+                  //Create a new sampling session
+                  cmd = "tc qdisc add dev " + if_name + " handle ffff: ingress";
+                  if(system(cmd.c_str()) == -1)
+                      SWSS_LOG_ERROR("Unable to add/update the sampling session");;
+
+                  cmd = "tc filter add dev " + if_name + \
+                        " parent ffff: matchall action sample rate " + std::to_string(rate) + \
+                        " group " + group;
+                  if(system(cmd.c_str()) == -1)
+                      SWSS_LOG_ERROR("Unable to update the sampling session");;
+              } else {
+                  SWSS_LOG_ERROR("Unable to get SAI_SAMPLEPACKET_ATTR_SAMPLE_RATE, sampling session is not updated");
+              }
+        }
+    }
+
+    return meta_sai_set_oid((sai_object_type_t)SAI_OBJECT_TYPE_PORT, port_id, attr, &vs_generic_set);
+}
+
 VS_REMOVE(PORT,port);
-VS_SET(PORT,port);
 VS_GET(PORT,port);
 VS_GENERIC_QUAD(PORT_POOL,port_pool);
 VS_GENERIC_STATS(PORT,port);

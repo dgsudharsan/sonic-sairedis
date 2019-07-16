@@ -253,6 +253,26 @@ class SwitchState
         return it->second;
     }
 
+    bool getPortIDToIfName(
+            _In_ sai_object_id_t port_id,
+            _In_ std::string& if_name)
+    {
+        SWSS_LOG_ENTER();
+
+        std::map<std::string, sai_object_id_t>::iterator it = m_ifname_to_port_id_map.begin();
+        while(it != m_ifname_to_port_id_map.end())
+        {
+           if(port_id == it->second)
+           {
+              if_name = it->first;
+              return true;
+           }
+           ++it;
+        }
+
+        return false;
+    }
+
     private:
 
         sai_object_id_t m_switch_id;
