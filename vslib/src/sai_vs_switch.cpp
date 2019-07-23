@@ -14,7 +14,7 @@
 
 #include <thread>
 
-sai_object_id_t g_vs_switch_id;
+sai_object_id_t* g_vs_switch_id;
 
 /**
  * @brief Get SwitchState by switch id.
@@ -295,7 +295,7 @@ sai_status_t vs_create_switch(
 
     SWSS_LOG_ENTER();
 
-    g_vs_switch_id = *switch_id;
+    g_vs_switch_id = switch_id;
 
     sai_status_t status = meta_sai_create_oid(
             SAI_OBJECT_TYPE_SWITCH,

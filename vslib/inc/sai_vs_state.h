@@ -259,17 +259,18 @@ class SwitchState
     {
         SWSS_LOG_ENTER();
 
-        std::map<std::string, sai_object_id_t>::iterator it = m_ifname_to_port_id_map.begin();
+        SWSS_LOG_ERROR("Enter");
+        auto it = m_ifname_to_port_id_map.begin();
         while(it != m_ifname_to_port_id_map.end())
         {
            if(port_id == it->second)
            {
-              if_name = it->first;
+              if_name.assign(it->first);
               return true;
            }
            ++it;
         }
-
+        SWSS_LOG_ERROR("Unable to find interface name");
         return false;
     }
 
