@@ -11,8 +11,8 @@ using json = nlohmann::json;
 using namespace sairedis;
 
 ServerConfig::ServerConfig():
-    m_zmqEndpoint("ipc:///tmp/saiServer"),
-    m_zmqNtfEndpoint("ipc:///tmp/saiServerNtf")
+    m_zmqEndpoint("ipc:///var/run/redis/saiServer"),
+    m_zmqNtfEndpoint("ipc:///var/run/redis/saiServerNtf")
 {
     SWSS_LOG_ENTER();
 
