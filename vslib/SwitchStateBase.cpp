@@ -3594,6 +3594,17 @@ sai_status_t SwitchStateBase::queryTunnelPeerModeCapability(
     return SAI_STATUS_SUCCESS;
 }
 
+sai_status_t SwitchStateBase::queryPortAutonegFecOverrideSupportCapability(
+                   _Out_ sai_attr_capability_t *capability)
+{
+    SWSS_LOG_ENTER();
+
+    capability->create_implemented = false;
+    capability->set_implemented    = false;
+    capability->get_implemented    = false;
+    return SAI_STATUS_SUCCESS;
+}
+
 sai_status_t SwitchStateBase::queryVlanfloodTypeCapability(
                    _Inout_ sai_s32_list_t *enum_values_capability)
 {
@@ -3656,4 +3667,23 @@ sai_status_t SwitchStateBase::queryAttrEnumValuesCapability(
         return queryNextHopGroupTypeCapability(enum_values_capability);
     }
     return SAI_STATUS_NOT_SUPPORTED;
+}
+
+sai_status_t SwitchStateBase::queryAttributeCapability(
+                              _In_ sai_object_id_t switch_id,
+                              _In_ sai_object_type_t object_type,
+                              _In_ sai_attr_id_t attr_id,
+                              _Out_ sai_attr_capability_t *capability)
+{
+    SWSS_LOG_ENTER();
+
+    if (object_type == SAI_OBJECT_TYPE_PORT && attr_id == SAI_PORT_ATTR_AUTO_NEG_FEC_MODE_OVERRIDE)
+    {
+        return queryPortAutonegFecOverrideSupportCapability(capability);
+    }
+    capability->create_implemented = true;
+    capability->set_implemented    = true;
+    capability->get_implemented    = true;
+
+    return SAI_STATUS_SUCCESS;
 }
