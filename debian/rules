@@ -50,7 +50,8 @@ binary: binary-syncd-rpc binary-syncd
 binary-sairedis:
 	echo '--enable-syncd=no' > /tmp/syncd-build
 	ENABLESYNCD=no dh clean  --with autotools-dev
-	dh build  -N syncd -N syncd-dbg -N syncd-rpc -N syncd-rpc-dbg -N syncd-vs -N syncd-vs-dbg --with autotools-dev
+	dh build  --no-parallel -N syncd -N syncd-dbg -N syncd-rpc -N syncd-rpc-dbg -N syncd-vs -N syncd-vs-dbg --with autotools-dev
+	find
 	dh binary -N syncd -N syncd-dbg -N syncd-rpc -N syncd-rpc-dbg -N syncd-vs -N syncd-vs-dbg --with autotools-dev
 
 binary-syncd:
